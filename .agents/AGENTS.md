@@ -58,7 +58,13 @@ devHub/
 
 ---
 
-## 🔌 4. กฎการเขียนโค้ดสำหรับ VS Code Extension (`apps/extension`)
+## ⚡ 3.5 Package Manager Policy (Bun Only)
+
+โปรเจกต์นี้กำหนดให้ใช้ **Bun** (`bun`) เป็น Package Manager และ Runtime หลักสำหรับ Node.js/TypeScript Ecosystem ทั้งหมด (ทั้งใน `apps/web` และ `apps/extension`):
+* **คำสั่งติดตั้ง:** ใช้ `bun install` แทน `npm install`
+* **คำสั่งรัน script:** ใช้ `bun run <script>` แทน `npm run`
+* **คำสั่งรัน package:** ใช้ `bunx <package>` แทน `npx`
+
 
 * **Performance Isolation:** 
   * ห้ามรันงานซับซ้อน หรือ Synchronous Blocking บน Extension Host Main Thread
