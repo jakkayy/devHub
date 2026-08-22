@@ -6,12 +6,22 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jakkayy/devHub/services/backend-api/internal/config"
+	"github.com/jakkayy/devHub/services/backend-api/internal/repository"
 )
 
 func main() {
+	cfg := config.LoadConfig()
+
+	db, err := repository.NewPostgresDatabase(cfg)
+	if err != nil {
+		log.Printf("Warning: Database connection skipped/failed: %v", err)
+	} else {
+		_ = db
+	}
+
 	r := gin.Default()
 
-	// Health check endpoint
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":    "ok",
@@ -29,8 +39,8 @@ func main() {
 		})
 	}
 
-	log.Println("Starting devHub Go Backend Service on :8080...")
-	if err := r.Run(":8080"); err != nil {
+	log.Printf("Starting devHub Go Backend Service on :%s...", cfg.Port)
+	if err := r.Run(":" + cfg.Port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
