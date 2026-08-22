@@ -1,0 +1,24 @@
+{
+  "name": "devhub-extension",
+  "displayName": "devHub Companion",
+  "description": "VS Code Extension for devHub Internal Developer Portal",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "20.x",
+    "typescript": "^5.3.0"
+  }
+}
