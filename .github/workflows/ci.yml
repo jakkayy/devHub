@@ -1,0 +1,54 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Job 1: Go Backend CI
+  backend-ci:
+    name: Go Backend CI (Build & Lint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/backend-api
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Install Dependencies
+        run: go mod download
+
+      - name: Verify Code Compilation
+        run: go build -v ./cmd/api
+
+  # Job 2: Next.js Web Frontend CI
+  frontend-ci:
+    name: Next.js Frontend CI (Bun Build & Lint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun Environment
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies with Bun
+        run: bun install
+
+      - name: Check Next.js Build
+        run: bun run build

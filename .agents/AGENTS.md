@@ -21,9 +21,21 @@ devHub/
 └── README.md                     # Project documentation & Overview
 ```
 
----
+## 🌿 1.2 กฎการตั้งชื่อ Branch (Git Branching Model)
 
-## 🐹 2. กฎการเขียนโค้ดสำหรับ Go Backend (`services/backend-api`)
+โปรเจกต์นี้ใช้โครงสร้าง **Trunk-Based / Feature Branching Strategy** โดยมีการกำหนดรูปแบบการตั้งชื่อ Branch ที่ชัดเจนดังนี้:
+
+* **`main`**: Production-ready code (เสถียรที่สุด)
+* **`develop`**: Integration branch หลักสำหรับรันพัฒนาประจำวัน
+* **`feature/<component>-<short-description>`**: สำหรับฟีเจอร์ใหม่
+  * ตัวอย่าง: `feature/backend-db-migration`, `feature/web-dashboard-ui`, `feature/extension-sidebar`
+* **`fix/<component>-<short-description>`**: สำหรับแก้บั๊ก
+  * ตัวอย่าง: `fix/backend-redis-timeout`, `fix/web-layout-overflow`
+* **`ci/<description>`**: สำหรับงาน CI/CD & DevOps Pipeline
+  * ตัวอย่าง: `ci/github-actions-pipeline`
+* **`docs/<description>`**: สำหรับงานปรับแต่ง Documentation
+  * ตัวอย่าง: `docs/update-api-spec`
+
 
 ใช้แนวคิด **Clean Architecture & Idiomatic Go**:
 * **Layer Isolation:**
