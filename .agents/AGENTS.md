@@ -27,8 +27,8 @@ devHub/
 
 * **`main`**: Production-ready code (เสถียรที่สุด)
 * **`develop`**: Integration branch หลักสำหรับรันพัฒนาประจำวัน
-* **`feature/<component>-<short-description>`**: สำหรับฟีเจอร์ใหม่
-  * ตัวอย่าง: `feature/backend-db-migration`, `feature/web-dashboard-ui`, `feature/extension-sidebar`
+* **`feat/<component>-<short-description>`**: สำหรับฟีเจอร์ใหม่
+  * ตัวอย่าง: `feat/backend-db-migration`, `feat/web-dashboard-ui`, `feat/extension-sidebar`
 * **`fix/<component>-<short-description>`**: สำหรับแก้บั๊ก
   * ตัวอย่าง: `fix/backend-redis-timeout`, `fix/web-layout-overflow`
 * **`ci/<description>`**: สำหรับงาน CI/CD & DevOps Pipeline
