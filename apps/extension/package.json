@@ -11,10 +11,70 @@
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "devHub Settings",
+      "properties": {
+        "devhub.backendUrl": {
+          "type": "string",
+          "default": "http://localhost:8080",
+          "description": "devHub Go Backend Service Base URL"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "devhub.testEndpoint",
+        "title": "devHub: Try Out & Preview API Response",
+        "category": "devHub"
+      },
+      {
+        "command": "devhub.linkSelectionToTask",
+        "title": "devHub: Link Code Selection to Task...",
+        "category": "devHub"
+      },
+      {
+        "command": "devhub.sendDiscordNotification",
+        "title": "devHub: Send Notification to Discord Channel",
+        "category": "devHub"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "devhub.linkSelectionToTask",
+          "group": "devhub@1"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devhub-sidebar-view",
+          "title": "devHub",
+          "icon": "$(terminal)"
+        }
+      ]
+    },
+    "views": {
+      "devhub-sidebar-view": [
+        {
+          "type": "webview",
+          "id": "devhub.sidebarView",
+          "name": "devHub Command Center"
+        },
+        {
+          "id": "devhub.apiExplorerView",
+          "name": "API Contract Specs Explorer"
+        }
+      ]
+    }
+  },
   "scripts": {
     "vscode:prepublish": "bun run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "watch": "tsc -watch -p ./",
+    "build": "bun run compile"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",

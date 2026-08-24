@@ -25,23 +25,43 @@ func main() {
 
 	taskRepo := repository.NewTaskRepository(db.DB)
 	contractRepo := repository.NewAPIContractRepository(db.DB)
+	linkerRepo := repository.NewContextLinkerRepository(db.DB)
 	cacheRepo := repository.NewCacheRepository(cfg.RedisHost, cfg.RedisPassword)
 
 	// 3. Initialize External Clients & Parsers
 	sheetsClient := client.NewSheetsClient()
 	githubClient := client.NewGitHubClient(cfg.GitHubPAT)
 	contractParser := client.NewAPIContractParser()
+	discordClient := client.NewDiscordClient()
 
 	// 4. Initialize Business Logic Usecases
 	integrationUsecase := usecase.NewIntegrationUsecase(sheetsClient, githubClient, taskRepo, cacheRepo)
 	contractUsecase := usecase.NewAPIContractUsecase(contractParser, contractRepo, cacheRepo)
+	linkerUsecase := usecase.NewContextLinkerUsecase(linkerRepo, contractRepo, cacheRepo)
+	discordUsecase := usecase.NewDiscordUsecase(discordClient, cfg)
 
 	// 5. Initialize Delivery Handlers
 	integrationHandler := handler.NewIntegrationHandler(integrationUsecase, cfg)
 	contractHandler := handler.NewAPIContractHandler(contractUsecase)
+	linkerHandler := handler.NewContextLinkerHandler(linkerUsecase)
+	discordHandler := handler.NewDiscordHandler(discordUsecase)
 
-	// 6. Setup Gin Router & Routes
+	// 6. Setup Gin Router & Middleware
 	r := gin.Default()
+
+	// CORS Middleware for Next.js Frontend
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.Next()
+	})
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -67,6 +87,13 @@ func main() {
 		api.GET("/contracts", contractHandler.GetContracts)
 		api.GET("/contracts/:id", contractHandler.GetContractByID)
 		api.POST("/contracts/upload", contractHandler.UploadSpec)
+
+		// Context Linker & Deep Link Endpoints
+		api.POST("/links", linkerHandler.CreateLink)
+		api.GET("/links/task/:task_id", linkerHandler.GetLinksByTaskID)
+
+		// Discord Webhook Notification Endpoints
+		api.POST("/discord/notify", discordHandler.SendNotification)
 	}
 
 	log.Printf("Starting devHub Go Backend Service on :%s...", cfg.Port)
