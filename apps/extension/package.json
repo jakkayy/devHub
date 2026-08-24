@@ -73,7 +73,8 @@
   "scripts": {
     "vscode:prepublish": "bun run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "watch": "tsc -watch -p ./",
+    "build": "bun run compile"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",
