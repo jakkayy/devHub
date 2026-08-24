@@ -11,6 +11,26 @@
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devhub-sidebar-view",
+          "title": "devHub",
+          "icon": "$(terminal)"
+        }
+      ]
+    },
+    "views": {
+      "devhub-sidebar-view": [
+        {
+          "type": "webview",
+          "id": "devhub.sidebarView",
+          "name": "devHub Command Center"
+        }
+      ]
+    }
+  },
   "scripts": {
     "vscode:prepublish": "bun run compile",
     "compile": "tsc -p ./",
