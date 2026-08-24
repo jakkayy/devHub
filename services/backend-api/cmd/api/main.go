@@ -23,16 +23,21 @@ func main() {
 		log.Printf("Warning: Database connection skipped/failed: %v", err)
 	}
 
+	taskRepo := repository.NewTaskRepository(db.DB)
 	contractRepo := repository.NewAPIContractRepository(db.DB)
 	cacheRepo := repository.NewCacheRepository(cfg.RedisHost, cfg.RedisPassword)
 
-	// 3. Initialize External Parsers
+	// 3. Initialize External Clients & Parsers
+	sheetsClient := client.NewSheetsClient()
+	githubClient := client.NewGitHubClient(cfg.GitHubPAT)
 	contractParser := client.NewAPIContractParser()
 
-	// 4. Initialize Business Logic Usecase
+	// 4. Initialize Business Logic Usecases
+	integrationUsecase := usecase.NewIntegrationUsecase(sheetsClient, githubClient, taskRepo, cacheRepo)
 	contractUsecase := usecase.NewAPIContractUsecase(contractParser, contractRepo, cacheRepo)
 
-	// 5. Initialize Delivery Handler
+	// 5. Initialize Delivery Handlers
+	integrationHandler := handler.NewIntegrationHandler(integrationUsecase, cfg)
 	contractHandler := handler.NewAPIContractHandler(contractUsecase)
 
 	// 6. Setup Gin Router & Routes
@@ -53,6 +58,10 @@ func main() {
 				"message": "pong from devHub Go Backend Service!",
 			})
 		})
+
+		// Task & GitHub Endpoints
+		api.GET("/tasks", integrationHandler.GetTasks)
+		api.GET("/github/pulls", integrationHandler.GetGitHubPullRequests)
 
 		// API Contract Specs Endpoints
 		api.GET("/contracts", contractHandler.GetContracts)
