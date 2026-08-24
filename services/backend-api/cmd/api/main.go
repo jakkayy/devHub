@@ -6,20 +6,36 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jakkayy/devHub/services/backend-api/internal/client"
 	"github.com/jakkayy/devHub/services/backend-api/internal/config"
+	"github.com/jakkayy/devHub/services/backend-api/internal/handler"
 	"github.com/jakkayy/devHub/services/backend-api/internal/repository"
+	"github.com/jakkayy/devHub/services/backend-api/internal/usecase"
 )
 
 func main() {
+	// 1. Load Configuration
 	cfg := config.LoadConfig()
 
+	// 2. Initialize Repositories (PostgreSQL & Redis)
 	db, err := repository.NewPostgresDatabase(cfg)
 	if err != nil {
 		log.Printf("Warning: Database connection skipped/failed: %v", err)
-	} else {
-		_ = db
 	}
 
+	contractRepo := repository.NewAPIContractRepository(db.DB)
+	cacheRepo := repository.NewCacheRepository(cfg.RedisHost, cfg.RedisPassword)
+
+	// 3. Initialize External Parsers
+	contractParser := client.NewAPIContractParser()
+
+	// 4. Initialize Business Logic Usecase
+	contractUsecase := usecase.NewAPIContractUsecase(contractParser, contractRepo, cacheRepo)
+
+	// 5. Initialize Delivery Handler
+	contractHandler := handler.NewAPIContractHandler(contractUsecase)
+
+	// 6. Setup Gin Router & Routes
 	r := gin.Default()
 
 	r.GET("/health", func(c *gin.Context) {
@@ -37,6 +53,11 @@ func main() {
 				"message": "pong from devHub Go Backend Service!",
 			})
 		})
+
+		// API Contract Specs Endpoints
+		api.GET("/contracts", contractHandler.GetContracts)
+		api.GET("/contracts/:id", contractHandler.GetContractByID)
+		api.POST("/contracts/upload", contractHandler.UploadSpec)
 	}
 
 	log.Printf("Starting devHub Go Backend Service on :%s...", cfg.Port)
