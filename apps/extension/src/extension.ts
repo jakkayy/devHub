@@ -5,6 +5,7 @@ import { LocalMockServer } from './mockServer';
 import { registerAPITester } from './apiTester';
 import { registerTaskLinkerCommand } from './taskLinker';
 import { DevHubCodeLensProvider } from './codeLensProvider';
+import { registerContextDetector } from './contextDetector';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('devHub Extension is now active!');
@@ -17,6 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
     mockServer.startServer();
     registerAPITester(context);
     registerTaskLinkerCommand(context);
+    registerContextDetector(context);
 
     context.subscriptions.push(
         vscode.languages.registerCodeLensProvider({ scheme: 'file' }, codeLensProvider),
