@@ -1,10 +1,22 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import TaskWidget from '@/components/TaskWidget';
 import GitHubPRWidget from '@/components/GitHubPRWidget';
 import APIContractWidget from '@/components/APIContractWidget';
+import MiroNodeLinkPanel from '@/components/MiroNodeLinkPanel';
 import { Activity, Cpu, Layers, Terminal } from 'lucide-react';
+
+// Dynamically import MiroWidget with SSR disabled for optimal page performance
+const MiroWidget = dynamic(() => import('@/components/MiroWidget'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-zinc-900/90 border border-zinc-800 rounded-xl p-5 shadow-lg flex items-center justify-center min-h-[350px]">
+      <span className="text-sm text-zinc-500 animate-pulse">Loading Miro Architecture Board...</span>
+    </div>
+  ),
+});
 
 export default function DashboardPage() {
   return (
@@ -61,6 +73,16 @@ export default function DashboardPage() {
               <p className="text-xs text-zinc-400">Caching & DB</p>
               <p className="text-base font-semibold text-zinc-100 mt-0.5">Redis + PostgreSQL</p>
             </div>
+          </div>
+        </div>
+
+        {/* Miro Architecture & Node-to-Code Mapping Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <MiroWidget />
+          </div>
+          <div>
+            <MiroNodeLinkPanel />
           </div>
         </div>
 
