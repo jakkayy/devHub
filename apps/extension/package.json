@@ -17,8 +17,21 @@
         "command": "devhub.testEndpoint",
         "title": "devHub: Try Out & Preview API Response",
         "category": "devHub"
+      },
+      {
+        "command": "devhub.linkSelectionToTask",
+        "title": "devHub: Link Code Selection to Task...",
+        "category": "devHub"
       }
     ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "devhub.linkSelectionToTask",
+          "group": "devhub@1"
+        }
+      ]
+    },
     "viewsContainers": {
       "activitybar": [
         {

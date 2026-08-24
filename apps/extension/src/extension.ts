@@ -3,6 +3,7 @@ import { DevHubSidebarProvider } from './sidebarProvider';
 import { APIContractTreeDataProvider } from './apiExplorer';
 import { LocalMockServer } from './mockServer';
 import { registerAPITester } from './apiTester';
+import { registerTaskLinkerCommand } from './taskLinker';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('devHub Extension is now active!');
@@ -13,6 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     mockServer.startServer();
     registerAPITester(context);
+    registerTaskLinkerCommand(context);
 
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(
