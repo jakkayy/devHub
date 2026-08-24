@@ -25,6 +25,7 @@ func main() {
 
 	taskRepo := repository.NewTaskRepository(db.DB)
 	contractRepo := repository.NewAPIContractRepository(db.DB)
+	linkerRepo := repository.NewContextLinkerRepository(db.DB)
 	cacheRepo := repository.NewCacheRepository(cfg.RedisHost, cfg.RedisPassword)
 
 	// 3. Initialize External Clients & Parsers
@@ -35,10 +36,12 @@ func main() {
 	// 4. Initialize Business Logic Usecases
 	integrationUsecase := usecase.NewIntegrationUsecase(sheetsClient, githubClient, taskRepo, cacheRepo)
 	contractUsecase := usecase.NewAPIContractUsecase(contractParser, contractRepo, cacheRepo)
+	linkerUsecase := usecase.NewContextLinkerUsecase(linkerRepo, contractRepo, cacheRepo)
 
 	// 5. Initialize Delivery Handlers
 	integrationHandler := handler.NewIntegrationHandler(integrationUsecase, cfg)
 	contractHandler := handler.NewAPIContractHandler(contractUsecase)
+	linkerHandler := handler.NewContextLinkerHandler(linkerUsecase)
 
 	// 6. Setup Gin Router & Routes
 	r := gin.Default()
@@ -67,6 +70,10 @@ func main() {
 		api.GET("/contracts", contractHandler.GetContracts)
 		api.GET("/contracts/:id", contractHandler.GetContractByID)
 		api.POST("/contracts/upload", contractHandler.UploadSpec)
+
+		// Context Linker & Deep Link Endpoints
+		api.POST("/links", linkerHandler.CreateLink)
+		api.GET("/links/task/:task_id", linkerHandler.GetLinksByTaskID)
 	}
 
 	log.Printf("Starting devHub Go Backend Service on :%s...", cfg.Port)
