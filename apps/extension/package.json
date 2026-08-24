@@ -12,6 +12,16 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "devHub Settings",
+      "properties": {
+        "devhub.backendUrl": {
+          "type": "string",
+          "default": "http://localhost:8080",
+          "description": "devHub Go Backend Service Base URL"
+        }
+      }
+    },
     "commands": [
       {
         "command": "devhub.testEndpoint",
