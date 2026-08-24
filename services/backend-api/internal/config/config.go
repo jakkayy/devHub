@@ -23,7 +23,7 @@ type Config struct {
 	RedisHost     string
 	RedisPassword string
 
-	// External Integrations Configuration
+	// External Integrations Credentials
 	GitHubPAT         string
 	DiscordWebhookURL string
 	GoogleSheetID     string

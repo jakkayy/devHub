@@ -6,20 +6,41 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jakkayy/devHub/services/backend-api/internal/client"
 	"github.com/jakkayy/devHub/services/backend-api/internal/config"
+	"github.com/jakkayy/devHub/services/backend-api/internal/handler"
 	"github.com/jakkayy/devHub/services/backend-api/internal/repository"
+	"github.com/jakkayy/devHub/services/backend-api/internal/usecase"
 )
 
 func main() {
+	// 1. Load Configuration
 	cfg := config.LoadConfig()
 
+	// 2. Initialize Repositories (PostgreSQL & Redis)
 	db, err := repository.NewPostgresDatabase(cfg)
 	if err != nil {
 		log.Printf("Warning: Database connection skipped/failed: %v", err)
-	} else {
-		_ = db
 	}
 
+	taskRepo := repository.NewTaskRepository(db.DB)
+	contractRepo := repository.NewAPIContractRepository(db.DB)
+	cacheRepo := repository.NewCacheRepository(cfg.RedisHost, cfg.RedisPassword)
+
+	// 3. Initialize External Clients & Parsers
+	sheetsClient := client.NewSheetsClient()
+	githubClient := client.NewGitHubClient(cfg.GitHubPAT)
+	contractParser := client.NewAPIContractParser()
+
+	// 4. Initialize Business Logic Usecases
+	integrationUsecase := usecase.NewIntegrationUsecase(sheetsClient, githubClient, taskRepo, cacheRepo)
+	contractUsecase := usecase.NewAPIContractUsecase(contractParser, contractRepo, cacheRepo)
+
+	// 5. Initialize Delivery Handlers
+	integrationHandler := handler.NewIntegrationHandler(integrationUsecase, cfg)
+	contractHandler := handler.NewAPIContractHandler(contractUsecase)
+
+	// 6. Setup Gin Router & Routes
 	r := gin.Default()
 
 	r.GET("/health", func(c *gin.Context) {
@@ -37,6 +58,15 @@ func main() {
 				"message": "pong from devHub Go Backend Service!",
 			})
 		})
+
+		// Task & GitHub Endpoints
+		api.GET("/tasks", integrationHandler.GetTasks)
+		api.GET("/github/pulls", integrationHandler.GetGitHubPullRequests)
+
+		// API Contract Specs Endpoints
+		api.GET("/contracts", contractHandler.GetContracts)
+		api.GET("/contracts/:id", contractHandler.GetContractByID)
+		api.POST("/contracts/upload", contractHandler.UploadSpec)
 	}
 
 	log.Printf("Starting devHub Go Backend Service on :%s...", cfg.Port)
