@@ -12,6 +12,13 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "devhub.testEndpoint",
+        "title": "devHub: Try Out & Preview API Response",
+        "category": "devHub"
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {

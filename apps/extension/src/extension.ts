@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { DevHubSidebarProvider } from './sidebarProvider';
 import { APIContractTreeDataProvider } from './apiExplorer';
 import { LocalMockServer } from './mockServer';
+import { registerAPITester } from './apiTester';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('devHub Extension is now active!');
@@ -10,8 +11,8 @@ export function activate(context: vscode.ExtensionContext) {
     const apiExplorerProvider = new APIContractTreeDataProvider();
     const mockServer = new LocalMockServer();
 
-    // Start Local Mock Server on Activation
     mockServer.startServer();
+    registerAPITester(context);
 
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(
