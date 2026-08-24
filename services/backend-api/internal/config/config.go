@@ -43,7 +43,7 @@ func LoadConfig() *Config {
 		DBPassword:        getEnv("DB_PASSWORD", "devhubpass"),
 		DBName:            getEnv("DB_NAME", "devhub_db"),
 		DBSSLMode:         getEnv("DB_SSLMODE", "disable"),
-		RedisHost:         getEnv("REDIS_HOST", "localhost:6379"),
+		RedisHost:         getEnv("REDIS_HOST", "localhost:6380"),
 		RedisPassword:     getEnv("REDIS_PASSWORD", ""),
 		GitHubPAT:         getEnv("GITHUB_PAT", ""),
 		DiscordWebhookURL: getEnv("DISCORD_WEBHOOK_URL", ""),
