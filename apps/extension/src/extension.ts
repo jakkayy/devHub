@@ -1,12 +1,17 @@
 import * as vscode from 'vscode';
 import { DevHubSidebarProvider } from './sidebarProvider';
 import { APIContractTreeDataProvider } from './apiExplorer';
+import { LocalMockServer } from './mockServer';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('devHub Extension is now active!');
 
     const sidebarProvider = new DevHubSidebarProvider(context.extensionUri);
     const apiExplorerProvider = new APIContractTreeDataProvider();
+    const mockServer = new LocalMockServer();
+
+    // Start Local Mock Server on Activation
+    mockServer.startServer();
 
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(
@@ -16,11 +21,12 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.registerTreeDataProvider(
             'devhub.apiExplorerView',
             apiExplorerProvider
-        )
+        ),
+        { dispose: () => mockServer.stopServer() }
     );
 
-    let disposable = vscode.commands.registerCommand('devhub.helloWorld', () => {
-        vscode.window.showInformationMessage('Hello from devHub Internal Developer Portal!');
+    let disposable = vscode.commands.registerCommand('devhub.startMockServer', () => {
+        vscode.window.showInformationMessage('devHub Local OpenAPI Mock Server running on http://localhost:9090');
     });
 
     context.subscriptions.push(disposable);
