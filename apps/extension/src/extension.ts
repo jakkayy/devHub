@@ -1,15 +1,21 @@
 import * as vscode from 'vscode';
 import { DevHubSidebarProvider } from './sidebarProvider';
+import { APIContractTreeDataProvider } from './apiExplorer';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('devHub Extension is now active!');
 
     const sidebarProvider = new DevHubSidebarProvider(context.extensionUri);
-    
+    const apiExplorerProvider = new APIContractTreeDataProvider();
+
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(
             DevHubSidebarProvider.viewType,
             sidebarProvider
+        ),
+        vscode.window.registerTreeDataProvider(
+            'devhub.apiExplorerView',
+            apiExplorerProvider
         )
     );
 

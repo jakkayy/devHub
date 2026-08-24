@@ -27,6 +27,10 @@
           "type": "webview",
           "id": "devhub.sidebarView",
           "name": "devHub Command Center"
+        },
+        {
+          "id": "devhub.apiExplorerView",
+          "name": "API Contract Specs Explorer"
         }
       ]
     }
