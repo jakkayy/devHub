@@ -6,6 +6,7 @@ import { registerAPITester } from './apiTester';
 import { registerTaskLinkerCommand } from './taskLinker';
 import { DevHubCodeLensProvider } from './codeLensProvider';
 import { registerContextDetector } from './contextDetector';
+import { registerNotificationTrigger } from './notifier';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('devHub Extension is now active!');
@@ -19,6 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
     registerAPITester(context);
     registerTaskLinkerCommand(context);
     registerContextDetector(context);
+    registerNotificationTrigger(context);
 
     context.subscriptions.push(
         vscode.languages.registerCodeLensProvider({ scheme: 'file' }, codeLensProvider),

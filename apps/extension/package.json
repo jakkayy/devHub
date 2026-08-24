@@ -32,6 +32,11 @@
         "command": "devhub.linkSelectionToTask",
         "title": "devHub: Link Code Selection to Task...",
         "category": "devHub"
+      },
+      {
+        "command": "devhub.sendDiscordNotification",
+        "title": "devHub: Send Notification to Discord Channel",
+        "category": "devHub"
       }
     ],
     "menus": {
