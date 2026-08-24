@@ -32,16 +32,19 @@ func main() {
 	sheetsClient := client.NewSheetsClient()
 	githubClient := client.NewGitHubClient(cfg.GitHubPAT)
 	contractParser := client.NewAPIContractParser()
+	discordClient := client.NewDiscordClient()
 
 	// 4. Initialize Business Logic Usecases
 	integrationUsecase := usecase.NewIntegrationUsecase(sheetsClient, githubClient, taskRepo, cacheRepo)
 	contractUsecase := usecase.NewAPIContractUsecase(contractParser, contractRepo, cacheRepo)
 	linkerUsecase := usecase.NewContextLinkerUsecase(linkerRepo, contractRepo, cacheRepo)
+	discordUsecase := usecase.NewDiscordUsecase(discordClient, cfg)
 
 	// 5. Initialize Delivery Handlers
 	integrationHandler := handler.NewIntegrationHandler(integrationUsecase, cfg)
 	contractHandler := handler.NewAPIContractHandler(contractUsecase)
 	linkerHandler := handler.NewContextLinkerHandler(linkerUsecase)
+	discordHandler := handler.NewDiscordHandler(discordUsecase)
 
 	// 6. Setup Gin Router & Routes
 	r := gin.Default()
@@ -74,6 +77,9 @@ func main() {
 		// Context Linker & Deep Link Endpoints
 		api.POST("/links", linkerHandler.CreateLink)
 		api.GET("/links/task/:task_id", linkerHandler.GetLinksByTaskID)
+
+		// Discord Webhook Notification Endpoints
+		api.POST("/discord/notify", discordHandler.SendNotification)
 	}
 
 	log.Printf("Starting devHub Go Backend Service on :%s...", cfg.Port)
