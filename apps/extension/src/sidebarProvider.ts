@@ -21,7 +21,6 @@ export class DevHubSidebarProvider implements vscode.WebviewViewProvider {
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-        // Strict Type Message Listener
         webviewView.webview.onDidReceiveMessage(async (message: WebviewMessage) => {
             switch (message.command) {
                 case 'FETCH_TASKS':
@@ -74,7 +73,7 @@ export class DevHubSidebarProvider implements vscode.WebviewViewProvider {
     <style>
         body {
             font-family: var(--vscode-font-family);
-            padding: 10px;
+            padding: 12px;
             color: var(--vscode-foreground);
             background-color: var(--vscode-sideBar-background);
         }
@@ -85,23 +84,137 @@ export class DevHubSidebarProvider implements vscode.WebviewViewProvider {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            border-bottom: 1px solid var(--vscode-widget-border);
+            padding-bottom: 8px;
         }
         .status-badge {
-            font-size: 0.8em;
+            font-size: 0.75em;
             padding: 2px 6px;
             border-radius: 10px;
             background: rgba(16, 185, 129, 0.2);
             color: #10b981;
             border: 1px solid rgba(16, 185, 129, 0.4);
         }
+        .section-title {
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 14px 0 6px 0;
+            color: var(--vscode-descriptionForeground);
+        }
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .card {
+            background: var(--vscode-editor-background);
+            border: 1px solid var(--vscode-widget-border);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 0.85em;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .tag {
+            font-family: var(--vscode-editor-font-family);
+            font-size: 0.75em;
+            color: #38bdf8;
+        }
+        .btn {
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 6px;
+            font-size: 0.8em;
+        }
+        .btn:hover {
+            background: var(--vscode-button-hoverBackground);
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <span>devHub Sidebar</span>
-        <span class="status-badge">Active</span>
+        <span>devHub Command Center</span>
+        <span class="status-badge">Connected</span>
     </div>
-    <div id="app">Initializing Protocol Listener...</div>
+
+    <div class="section-title">Active Tasks (Sheets Sync)</div>
+    <div id="tasks-container" class="card-list">
+        <div class="card">Loading tasks...</div>
+    </div>
+
+    <div class="section-title">API Specs (OpenAPI 3.0)</div>
+    <div id="contracts-container" class="card-list">
+        <div class="card">Loading API contracts...</div>
+    </div>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+
+        window.addEventListener('message', event => {
+            const message = event.data;
+            switch (message.type) {
+                case 'TASKS_LOADED':
+                    renderTasks(message.data);
+                    break;
+                case 'CONTRACTS_LOADED':
+                    renderContracts(message.data);
+                    break;
+                case 'ERROR':
+                    console.error(message.error);
+                    break;
+            }
+        });
+
+        function renderTasks(tasks) {
+            const container = document.getElementById('tasks-container');
+            if (!tasks || tasks.length === 0) {
+                container.innerHTML = '<div class="card">No tasks available</div>';
+                return;
+            }
+            container.innerHTML = tasks.map(t => \`
+                <div class="card">
+                    <div class="card-header">
+                        <span class="tag">\${t.id}</span>
+                        <span>\${t.status}</span>
+                    </div>
+                    <div>\${t.title}</div>
+                </div>
+            \`).join('');
+        }
+
+        function renderContracts(contracts) {
+            const container = document.getElementById('contracts-container');
+            if (!contracts || contracts.length === 0) {
+                container.innerHTML = '<div class="card">No API specs available</div>';
+                return;
+            }
+            container.innerHTML = contracts.map(c => \`
+                <div class="card">
+                    <div class="card-header">
+                        <span class="tag">\${c.method}</span>
+                        <span>\${c.path}</span>
+                    </div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">\${c.summary}</div>
+                </div>
+            \`).join('');
+        }
+
+        // Trigger initial data load
+        vscode.postMessage({ command: 'FETCH_TASKS' });
+        vscode.postMessage({ command: 'FETCH_CONTRACTS' });
+    </script>
 </body>
 </html>`;
     }
