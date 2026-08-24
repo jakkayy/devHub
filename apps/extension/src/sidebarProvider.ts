@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { WebviewMessage } from './messaging';
 
 export class DevHubSidebarProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'devhub.sidebarView';
@@ -19,11 +20,47 @@ export class DevHubSidebarProvider implements vscode.WebviewViewProvider {
         };
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+
+        // Strict Type Message Listener
+        webviewView.webview.onDidReceiveMessage(async (message: WebviewMessage) => {
+            switch (message.command) {
+                case 'FETCH_TASKS':
+                    this._fetchAndSendTasks();
+                    break;
+                case 'FETCH_CONTRACTS':
+                    this._fetchAndSendContracts();
+                    break;
+                case 'OPEN_DEEP_LINK':
+                    if (message.payload?.vscodeUri) {
+                        vscode.env.openExternal(vscode.Uri.parse(message.payload.vscodeUri));
+                    }
+                    break;
+                case 'NOTIFY':
+                    if (message.payload?.text) {
+                        vscode.window.showInformationMessage(message.payload.text);
+                    }
+                    break;
+            }
+        });
     }
 
-    public postMessageToWebview(message: any) {
-        if (this._view) {
-            this._view.webview.postMessage(message);
+    private async _fetchAndSendTasks() {
+        try {
+            const res = await fetch('http://localhost:8080/api/v1/tasks');
+            const json = (await res.json()) as any;
+            this._view?.webview.postMessage({ type: 'TASKS_LOADED', data: json.data || [] });
+        } catch (err: any) {
+            this._view?.webview.postMessage({ type: 'ERROR', error: 'Failed to connect to Go Backend' });
+        }
+    }
+
+    private async _fetchAndSendContracts() {
+        try {
+            const res = await fetch('http://localhost:8080/api/v1/contracts');
+            const json = (await res.json()) as any;
+            this._view?.webview.postMessage({ type: 'CONTRACTS_LOADED', data: json.data || [] });
+        } catch (err: any) {
+            this._view?.webview.postMessage({ type: 'ERROR', error: 'Failed to fetch API specs' });
         }
     }
 
@@ -47,7 +84,7 @@ export class DevHubSidebarProvider implements vscode.WebviewViewProvider {
             font-size: 1.1em;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: space-between;
         }
         .status-badge {
             font-size: 0.8em;
@@ -64,7 +101,7 @@ export class DevHubSidebarProvider implements vscode.WebviewViewProvider {
         <span>devHub Sidebar</span>
         <span class="status-badge">Active</span>
     </div>
-    <div id="app">Initializing devHub Command Center...</div>
+    <div id="app">Initializing Protocol Listener...</div>
 </body>
 </html>`;
     }
