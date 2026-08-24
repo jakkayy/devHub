@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchAPIContracts } from '../services/api';
+import { fetchAPIContracts } from '@/services/api';
 import { Code2, FileCode2 } from 'lucide-react';
 
 export default function APIContractWidget() {

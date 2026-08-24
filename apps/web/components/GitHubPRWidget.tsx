@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchGitHubPullRequests } from '../services/api';
+import { fetchGitHubPullRequests } from '@/services/api';
 import { ExternalLink, GitPullRequest } from 'lucide-react';
 
 export default function GitHubPRWidget() {

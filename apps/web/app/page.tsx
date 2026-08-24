@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import TaskWidget from '../components/TaskWidget';
-import GitHubPRWidget from '../components/GitHubPRWidget';
-import APIContractWidget from '../components/APIContractWidget';
+import TaskWidget from '@/components/TaskWidget';
+import GitHubPRWidget from '@/components/GitHubPRWidget';
+import APIContractWidget from '@/components/APIContractWidget';
 import { Activity, Cpu, Layers, Terminal } from 'lucide-react';
 
 export default function DashboardPage() {

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchTasks } from '../services/api';
+import { fetchTasks } from '@/services/api';
 import { CheckCircle2, Clock, ListTodo, Sheet } from 'lucide-react';
 
 export default function TaskWidget() {
