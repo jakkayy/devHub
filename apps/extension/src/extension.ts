@@ -4,6 +4,7 @@ import { APIContractTreeDataProvider } from './apiExplorer';
 import { LocalMockServer } from './mockServer';
 import { registerAPITester } from './apiTester';
 import { registerTaskLinkerCommand } from './taskLinker';
+import { DevHubCodeLensProvider } from './codeLensProvider';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('devHub Extension is now active!');
@@ -11,12 +12,14 @@ export function activate(context: vscode.ExtensionContext) {
     const sidebarProvider = new DevHubSidebarProvider(context.extensionUri);
     const apiExplorerProvider = new APIContractTreeDataProvider();
     const mockServer = new LocalMockServer();
+    const codeLensProvider = new DevHubCodeLensProvider();
 
     mockServer.startServer();
     registerAPITester(context);
     registerTaskLinkerCommand(context);
 
     context.subscriptions.push(
+        vscode.languages.registerCodeLensProvider({ scheme: 'file' }, codeLensProvider),
         vscode.window.registerWebviewViewProvider(
             DevHubSidebarProvider.viewType,
             sidebarProvider
